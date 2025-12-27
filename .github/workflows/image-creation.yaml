@@ -1,4 +1,4 @@
-name: Export Draw.io diagrams to SVG
+name: Export Drawio diagrams to SVG
 
 on:
   push:
@@ -7,16 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  export-drawio:
+  export:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Draw.io CLI
-        run: |
-          sudo snap install drawio
+      - uses: actions/checkout@v4
 
       - name: Export all drawio files to SVG
         run: |
@@ -26,10 +21,13 @@ jobs:
           for file in **/*.drawio; do
             [ -f "$file" ] || continue
             echo "Exporting $file"
-            drawio \
+
+            docker run --rm \
+              -v "$PWD":/data \
+              jgraph/drawio \
               --export \
               --format svg \
-              "$file"
+              "/data/$file"
           done
 
       - name: Commit exported SVGs
@@ -38,6 +36,5 @@ jobs:
           git config user.email "drawio-bot@users.noreply.github.com"
 
           git add "**/*.svg"
-
           git commit -m "auto: export drawio diagrams to svg" || exit 0
           git push
