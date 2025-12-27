@@ -22,8 +22,9 @@ jobs:
         uses: rlespinasse/drawio-export-action@v2
         with:
           format: svg
-          transparent: true
+          transparent: false
           remove-page-suffix: true
+          svg-theme: dark
 
       - name: Commit exported SVGs
         run: |
