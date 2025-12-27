@@ -22,9 +22,18 @@ jobs:
         uses: rlespinasse/drawio-export-action@v2
         with:
           format: svg
-          transparent: false
+          transparent: true
           remove-page-suffix: true
-          svg-theme: dark
+
+      - name: Add theme-aware CSS to SVG files
+        run: |
+          find . -name "*.svg" -type f | while read svg; do
+            # Add prefers-color-scheme media query for dark mode
+            if grep -q '</svg>' "$svg"; then
+              # Create a style element for dark mode
+              sed -i '/<svg/a\  <style>\n    @media (prefers-color-scheme: dark) {\n      svg {\n        filter: invert(0.9) hue-rotate(180deg);\n      }\n    }\n  </style>' "$svg"
+            fi
+          done
 
       - name: Commit exported SVGs
         run: |
