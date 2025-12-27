@@ -13,22 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Export all drawio files to SVG
-        run: |
-          set -e
-          shopt -s globstar
-
-          for file in **/*.drawio; do
-            [ -f "$file" ] || continue
-            echo "Exporting $file"
-
-            docker run --rm \
-              -v "$PWD":/data \
-              jgraph/drawio \
-              --export \
-              --format svg \
-              "/data/$file"
-          done
+      - name: Export drawio files to SVG
+        uses: rlespinasse/drawio-export-action@v2
+        with:
+          format: svg
+          transparent: true
+          remove-page-suffix: true
 
       - name: Commit exported SVGs
         run: |
