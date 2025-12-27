@@ -28,10 +28,10 @@ jobs:
       - name: Add theme-aware CSS to SVG files
         run: |
           find . -name "*.svg" -type f | while read svg; do
-            # Add prefers-color-scheme media query for dark mode
-            if grep -q '</svg>' "$svg"; then
-              # Create a style element for dark mode
-              sed -i '/<svg/a\  <style>\n    @media (prefers-color-scheme: dark) {\n      svg {\n        filter: invert(0.9) hue-rotate(180deg);\n      }\n    }\n  </style>' "$svg"
+            # Add style element after opening svg tag for dark mode support
+            if grep -q '<svg' "$svg" && ! grep -q 'prefers-color-scheme' "$svg"; then
+              # Insert style tag right after the opening <svg> tag
+              perl -i -pe 's/(<svg[^>]*>)/\1\n  <style>\n    @media (prefers-color-scheme: dark) {\n      svg { filter: invert(0.9) hue-rotate(180deg); }\n    }\n  <\/style>/s' "$svg"
             fi
           done
 
